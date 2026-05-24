@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌸 許願代購交流平台</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #FF6B9D;
+    --pink-light: #FFB3CF;
+    --pink-pale: #FFF0F6;
+    --purple: #C77DFF;
+    --purple-light: #E8B4FF;
+    --yellow: #FFD93D;
+    --mint: #6BCB77;
+    --sky: #4ECDC4;
+    --coral: #FF6B6B;
+    --white: #FFFFFF;
+    --bg: #FFF5FA;
+    --text: #3D2B4E;
+    --text-light: #8B6FA8;
+    --card: #FFFFFF;
+    --border: #F0D6E8;
+    --shadow: rgba(255, 107, 157, 0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(255,179,207,0.3) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(199,125,255,0.2) 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(78,205,196,0.1) 0%, transparent 60%);
+  }
+
+  /* ── Floating deco ── */
+  .deco-star { position: fixed; pointer-events: none; font-size: 1.4rem; animation: floatStar 6s ease-in-out infinite; z-index: 0; opacity: 0.35; }
+  .deco-star:nth-child(1) { top: 8%; left: 5%; animation-delay: 0s; }
+  .deco-star:nth-child(2) { top: 15%; right: 8%; animation-delay: 1.2s; }
+  .deco-star:nth-child(3) { top: 70%; left: 3%; animation-delay: 2.4s; }
+  .deco-star:nth-child(4) { top: 80%; right: 5%; animation-delay: 0.8s; }
+  .deco-star:nth-child(5) { top: 45%; left: 1%; animation-delay: 3s; }
+  @keyframes floatStar { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-18px) rotate(20deg)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+
+  /* ── Navbar ── */
+  .navbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 2px solid var(--pink-light);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+    box-shadow: 0 2px 20px var(--shadow);
+  }
+  .navbar-brand {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900; font-size: 1.4rem;
+    color: var(--pink);
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+  }
+  .navbar-brand span { animation: bounce 2s infinite; display: inline-block; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+
+  .nav-tabs { display: flex; gap: 6px; }
+  .nav-tab {
+    padding: 8px 18px; border-radius: 20px; border: none; cursor: pointer;
+    font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.9rem;
+    transition: all 0.2s; background: transparent; color: var(--text-light);
+  }
+  .nav-tab:hover { background: var(--pink-pale); color: var(--pink); }
+  .nav-tab.active { background: var(--pink); color: white; box-shadow: 0 4px 12px var(--shadow); }
+
+  .nav-user { display: flex; align-items: center; gap: 12px; }
+  .nav-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 3px solid var(--pink-light); object-fit: cover; cursor: pointer;
+    transition: transform 0.2s; background: var(--pink-pale);
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    overflow: hidden;
+  }
+  .nav-avatar:hover { transform: scale(1.1); }
+  .nav-username { font-weight: 700; color: var(--text); font-size: 0.9rem; }
+  .btn-logout {
+    padding: 6px 14px; border-radius: 20px; border: 2px solid var(--pink);
+    background: white; color: var(--pink); font-weight: 700; font-size: 0.85rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-logout:hover { background: var(--pink); color: white; }
+
+  /* ── Pages ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Auth Page ── */
+  .auth-container {
+    min-height: calc(100vh - 64px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+  .auth-card {
+    background: white; border-radius: 28px; padding: 2.5rem;
+    box-shadow: 0 8px 40px rgba(255,107,157,0.2);
+    width: 100%; max-width: 420px;
+    border: 2px solid var(--pink-light);
+    position: relative; overflow: hidden;
+  }
+  .auth-card::before {
+    content: ''; position: absolute; top: -40px; right: -40px;
+    width: 120px; height: 120px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
+    opacity: 0.4;
+  }
+  .auth-title {
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.8rem;
+    color: var(--pink); text-align: center; margin-bottom: 0.3rem;
+  }
+  .auth-subtitle { text-align: center; color: var(--text-light); font-size: 0.9rem; margin-bottom: 1.8rem; }
+  .auth-tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+  .auth-tab {
+    flex: 1; padding: 10px; border-radius: 12px; border: 2px solid var(--border);
+    background: white; font-weight: 700; cursor: pointer; color: var(--text-light);
+    transition: all 0.2s; font-family: 'Nunito', sans-serif;
+  }
+  .auth-tab.active { border-color: var(--pink); background: var(--pink-pale); color: var(--pink); }
+
+  .form-group { margin-bottom: 1rem; }
+  .form-label { font-weight: 600; font-size: 0.88rem; color: var(--text); display: block; margin-bottom: 6px; }
+  .form-input {
+    width: 100%; padding: 10px 14px; border-radius: 12px;
+    border: 2px solid var(--border); font-size: 0.95rem; color: var(--text);
+    transition: border-color 0.2s; outline: none; font-family: inherit;
+    background: var(--pink-pale);
+  }
+  .form-input:focus { border-color: var(--pink); background: white; }
+
+  .avatar-upload-area {
+    border: 2.5px dashed var(--pink-light); border-radius: 16px;
+    padding: 1.2rem; text-align: center; cursor: pointer;
+    transition: all 0.2s; background: var(--pink-pale);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .avatar-upload-area:hover { border-color: var(--pink); background: white; }
+  .avatar-preview {
+    width: 70px; height: 70px; border-radius: 50%; object-fit: cover;
+    border: 3px solid var(--pink-light); display: none;
+  }
+  .avatar-preview.show { display: block; }
+  .upload-icon { font-size: 2rem; }
+  .upload-hint { font-size: 0.82rem; color: var(--text-light); }
+
+  .btn-primary {
+    width: 100%; padding: 12px; border-radius: 14px; border: none;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white; font-weight: 800; font-size: 1rem; cursor: pointer;
+    transition: all 0.2s; font-family: 'Nunito', sans-serif;
+    box-shadow: 0 4px 16px rgba(255,107,157,0.4);
+    margin-top: 0.5rem;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,107,157,0.5); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .auth-error { color: var(--coral); font-size: 0.85rem; text-align: center; margin-top: 8px; display: none; }
+  .auth-error.show { display: block; }
+  .auth-success { color: var(--mint); font-size: 0.85rem; text-align: center; margin-top: 8px; display: none; }
+  .auth-success.show { display: block; }
+
+  /* ── Home Page ── */
+  .home-container { max-width: 680px; margin: 0 auto; padding: 2rem 1rem; }
+  .home-header {
+    background: white; border-radius: 24px; padding: 1.5rem 2rem;
+    box-shadow: 0 4px 20px var(--shadow); border: 2px solid var(--pink-light);
+    display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.5rem;
+    position: relative; overflow: hidden;
+  }
+  .home-header::after {
+    content: '🌸✨🎀'; position: absolute; right: 1.5rem; top: 50%;
+    transform: translateY(-50%); font-size: 1.5rem; opacity: 0.4;
+  }
+  .home-avatar {
+    width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--pink);
+    object-fit: cover; background: var(--pink-pale);
+    display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+    flex-shrink: 0; overflow: hidden;
+  }
+  .home-name { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+  .home-id { color: var(--text-light); font-size: 0.85rem; margin-top: 2px; }
+
+  .btn-new-post {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 1rem 1.5rem; border-radius: 18px;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white; font-weight: 800; font-size: 1rem; cursor: pointer; border: none;
+    box-shadow: 0 4px 16px rgba(255,107,157,0.35); margin-bottom: 1.5rem;
+    transition: all 0.2s; font-family: 'Nunito', sans-serif;
+  }
+  .btn-new-post:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(255,107,157,0.5); }
+  .btn-new-post .plus-icon { font-size: 1.4rem; }
+
+  .section-title {
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.1rem;
+    color: var(--text); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 2px; background: linear-gradient(to right, var(--pink-light), transparent); border-radius: 1px; }
+
+  .post-list { display: flex; flex-direction: column; gap: 1rem; }
+  .no-posts {
+    text-align: center; padding: 3rem 1rem; color: var(--text-light);
+    background: white; border-radius: 20px; border: 2px dashed var(--border);
+  }
+  .no-posts .no-posts-icon { font-size: 3rem; margin-bottom: 0.8rem; }
+
+  /* ── Post Card ── */
+  .post-card {
+    background: white; border-radius: 20px; padding: 1.2rem 1.4rem;
+    box-shadow: 0 3px 16px var(--shadow); border: 2px solid var(--border);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .post-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--shadow); }
+  .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; }
+  .post-avatar {
+    width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--pink-light);
+    object-fit: cover; background: var(--pink-pale);
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    flex-shrink: 0; overflow: hidden;
+  }
+  .post-author-name { font-weight: 700; font-size: 0.92rem; }
+  .post-author-id { color: var(--text-light); font-size: 0.8rem; }
+  .post-time { margin-left: auto; font-size: 0.78rem; color: var(--text-light); }
+  .post-topic {
+    font-weight: 800; font-size: 1rem; color: var(--pink); margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .post-topic::before { content: '🏷️'; font-size: 0.85rem; }
+  .post-content { font-size: 0.92rem; line-height: 1.6; color: var(--text); margin-bottom: 0.8rem; }
+  .post-img {
+    width: 100%; max-height: 280px; object-fit: cover; border-radius: 12px;
+    margin-bottom: 0.8rem; border: 2px solid var(--border);
+  }
+  .post-actions { display: flex; gap: 1rem; padding-top: 0.6rem; border-top: 1.5px solid var(--border); }
+  .action-btn {
+    display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+    border-radius: 20px; border: 2px solid transparent;
+    background: var(--pink-pale); cursor: pointer; font-weight: 700; font-size: 0.85rem;
+    color: var(--text-light); transition: all 0.2s; font-family: inherit;
+  }
+  .action-btn:hover { background: white; border-color: var(--pink-light); color: var(--pink); }
+  .action-btn.liked { background: #FFE4EE; border-color: var(--pink); color: var(--pink); }
+  .action-btn .action-icon { font-size: 1rem; }
+
+  /* ── Comment Section ── */
+  .comments-section { margin-top: 0.8rem; border-top: 1.5px solid var(--border); padding-top: 0.8rem; display: none; }
+  .comments-section.show { display: block; }
+  .comment-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.8rem; }
+  .comment-item {
+    display: flex; gap: 8px; align-items: flex-start;
+    background: var(--pink-pale); border-radius: 12px; padding: 8px 12px;
+  }
+  .comment-avatar {
+    width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--pink-light);
+    background: white; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+    flex-shrink: 0; overflow: hidden; object-fit: cover;
+  }
+  .comment-author { font-weight: 700; font-size: 0.82rem; color: var(--pink); }
+  .comment-text { font-size: 0.88rem; color: var(--text); margin-top: 2px; }
+  .comment-input-row { display: flex; gap: 8px; }
+  .comment-input {
+    flex: 1; padding: 8px 12px; border-radius: 12px;
+    border: 2px solid var(--border); font-size: 0.88rem; outline: none;
+    font-family: inherit; color: var(--text); background: var(--pink-pale);
+  }
+  .comment-input:focus { border-color: var(--pink); background: white; }
+  .btn-comment-send {
+    padding: 8px 14px; border-radius: 12px; border: none;
+    background: var(--pink); color: white; font-weight: 700; cursor: pointer;
+    font-size: 0.85rem; transition: all 0.2s; white-space: nowrap;
+  }
+  .btn-comment-send:hover { background: var(--purple); }
+  .no-login-hint { font-size: 0.82rem; color: var(--text-light); text-align: center; padding: 0.5rem; }
+
+  /* ── New Post Page ── */
+  .newpost-container { max-width: 640px; margin: 0 auto; padding: 2rem 1rem; }
+  .newpost-card {
+    background: white; border-radius: 24px; padding: 2rem;
+    box-shadow: 0 6px 30px var(--shadow); border: 2px solid var(--pink-light);
+  }
+  .newpost-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+  .newpost-avatar {
+    width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--pink);
+    background: var(--pink-pale); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+    overflow: hidden; object-fit: cover;
+  }
+  .newpost-title-text { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.3rem; color: var(--pink); }
+  .newpost-id-text { font-size: 0.85rem; color: var(--text-light); }
+  .page-back-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 20px; border: 2px solid var(--border);
+    background: white; color: var(--text-light); font-weight: 700; cursor: pointer;
+    margin-bottom: 1.2rem; font-family: 'Nunito', sans-serif; font-size: 0.9rem;
+    width: fit-content; transition: all 0.2s;
+  }
+  .page-back-btn:hover { border-color: var(--pink); color: var(--pink); }
+
+  .photo-upload-area {
+    border: 2.5px dashed var(--pink-light); border-radius: 16px;
+    padding: 1.5rem; text-align: center; cursor: pointer;
+    transition: all 0.2s; background: var(--pink-pale);
+  }
+  .photo-upload-area:hover { border-color: var(--pink); background: white; }
+  .photo-preview { width: 100%; max-height: 220px; object-fit: cover; border-radius: 12px; display: none; margin-top: 8px; }
+  .photo-preview.show { display: block; }
+
+  .btn-post-submit {
+    width: 100%; padding: 13px; border-radius: 14px; border: none;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white; font-weight: 900; font-size: 1.05rem; cursor: pointer;
+    transition: all 0.2s; font-family: 'Nunito', sans-serif;
+    box-shadow: 0 4px 16px rgba(255,107,157,0.4); margin-top: 0.5rem;
+  }
+  .btn-post-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(255,107,157,0.55); }
+
+  /* ── Share Page ── */
+  .share-container { max-width: 680px; margin: 0 auto; padding: 2rem 1rem; }
+  .share-hero {
+    text-align: center; padding: 1.5rem; background: white; border-radius: 24px;
+    border: 2px solid var(--pink-light); box-shadow: 0 4px 20px var(--shadow); margin-bottom: 1.5rem;
+  }
+  .share-hero-title { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.6rem; color: var(--pink); margin-bottom: 0.3rem; }
+  .share-hero-sub { font-size: 0.9rem; color: var(--text-light); }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(61,43,78,0.45); z-index: 200;
+    display: flex; align-items: center; justify-content: center; padding: 1rem;
+    backdrop-filter: blur(4px); display: none;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-card {
+    background: white; border-radius: 24px; padding: 2rem; max-width: 360px; width: 100%;
+    text-align: center; box-shadow: 0 12px 40px rgba(255,107,157,0.3);
+    border: 2px solid var(--pink-light); animation: popIn 0.3s ease;
+  }
+  @keyframes popIn { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+  .modal-icon { font-size: 3rem; margin-bottom: 0.8rem; }
+  .modal-title { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.3rem; color: var(--text); margin-bottom: 0.5rem; }
+  .modal-text { color: var(--text-light); font-size: 0.92rem; margin-bottom: 1.5rem; line-height: 1.6; }
+  .modal-actions { display: flex; gap: 10px; }
+  .btn-modal-primary {
+    flex: 1; padding: 11px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem; transition: all 0.2s;
+  }
+  .btn-modal-primary:hover { opacity: 0.9; }
+  .btn-modal-secondary {
+    flex: 1; padding: 11px; border-radius: 12px; border: 2px solid var(--border);
+    background: white; color: var(--text-light); font-weight: 700; cursor: pointer;
+    font-family: 'Nunito', sans-serif; font-size: 0.95rem; transition: all 0.2s;
+  }
+  .btn-modal-secondary:hover { border-color: var(--pink-light); color: var(--pink); }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg, var(--pink), var(--purple));
+    color: white; padding: 12px 24px; border-radius: 30px; font-weight: 700; font-size: 0.92rem;
+    box-shadow: 0 6px 24px rgba(255,107,157,0.4); z-index: 300; transition: transform 0.4s ease;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+    .navbar { padding: 0 1rem; }
+    .nav-tabs { gap: 4px; }
+    .nav-tab { padding: 6px 10px; font-size: 0.82rem; }
+    .home-container, .share-container, .newpost-container { padding: 1rem 0.7rem; }
+  }
+
+  textarea.form-input { resize: vertical; min-height: 100px; }
+
+  .tag-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: linear-gradient(135deg, var(--pink-pale), #f0e6ff);
+    border: 1.5px solid var(--pink-light); border-radius: 20px;
+    padding: 3px 10px; font-size: 0.78rem; font-weight: 700; color: var(--purple);
+    margin-bottom: 0.5rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- Decorations -->
+<div class="deco-star">🌸</div>
+<div class="deco-star">✨</div>
+<div class="deco-star">🎀</div>
+<div class="deco-star">⭐</div>
+<div class="deco-star">💫</div>
+
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <div class="navbar-brand" onclick="goHome()">
+    <span>🛍️</span> 許願代購平台
+  </div>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" onclick="showPage('share')">🌈 分享區</button>
+    <button class="nav-tab" onclick="requireAuth('home')">🏠 我的首頁</button>
+  </div>
+  <div class="nav-user" id="navUser">
+    <button class="nav-tab" onclick="showPage('auth')" id="btnLogin">🔐 登入</button>
+  </div>
+</nav>
+
+<!-- ── Auth Page ── -->
+<div class="page active" id="page-auth">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-title">🌸 歡迎來到許願代購</div>
+      <div class="auth-subtitle">加入我們，一起許願、分享、購物！</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">🔑 登入</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">🌟 註冊</button>
+      </div>
+
+      <!-- Login Form -->
+      <div id="loginForm">
+        <div class="form-group">
+          <label class="form-label">帳號 ID</label>
+          <input type="text" class="form-input" id="loginId" placeholder="請輸入帳號 ID">
+        </div>
+        <div class="form-group">
+          <label class="form-label">密碼</label>
+          <input type="password" class="form-input" id="loginPw" placeholder="請輸入密碼">
+        </div>
+        <div class="auth-error" id="loginError"></div>
+        <button class="btn-primary" onclick="doLogin()">🚀 登入</button>
+        <div style="text-align:center;margin-top:12px;font-size:0.85rem;color:var(--text-light)">
+          還沒有帳號？<a href="#" onclick="switchAuthTab('register')" style="color:var(--pink);font-weight:700">立即註冊 🌸</a>
+        </div>
+      </div>
+
+      <!-- Image CAPTCHA Verify Form -->
+      <div id="twoFAForm" style="display:none">
+        <div style="text-align:center;margin-bottom:1rem;">
+          <div style="font-size:2rem;margin-bottom:0.4rem;">🛡️</div>
+          <div style="font-weight:800;font-size:1.05rem;color:var(--text)" id="captchaQuestion">請選取所有包含貓咪的圖片</div>
+          <div style="font-size:0.8rem;color:var(--text-light);margin-top:3px">點選所有符合的圖片，再按「驗證」</div>
+        </div>
+        <div id="captchaGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;"></div>
+        <div class="auth-error" id="twoFAError"></div>
+        <div style="display:flex;gap:10px;margin-top:0.5rem;">
+          <button onclick="cancel2FA()" style="flex:1;padding:11px;border-radius:14px;border:2px solid var(--border);background:white;color:var(--text-light);font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;font-size:0.95rem;">取消</button>
+          <button class="btn-primary" style="flex:1;margin-top:0;" onclick="verify2FA()">驗證</button>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div id="registerForm" style="display:none">
+        <div class="form-group">
+          <label class="form-label">帳號 ID（不可重複）</label>
+          <input type="text" class="form-input" id="regId" placeholder="英數字組合，3~16字元">
+        </div>
+        <div class="form-group">
+          <label class="form-label">暱稱</label>
+          <input type="text" class="form-input" id="regName" placeholder="你的可愛暱稱">
+        </div>
+        <div class="form-group">
+          <label class="form-label">密碼</label>
+          <input type="password" class="form-input" id="regPw" placeholder="至少6位數">
+        </div>
+        <div class="form-group">
+          <label class="form-label">頭貼（可選）</label>
+          <div class="avatar-upload-area" onclick="document.getElementById('regAvatar').click()">
+            <img id="regAvatarPreview" class="avatar-preview" src="" alt="">
+            <div class="upload-icon" id="regUploadIcon">📷</div>
+            <div class="upload-hint">點擊上傳大頭照（選填）</div>
+          </div>
+          <input type="file" id="regAvatar" accept="image/*" style="display:none" onchange="previewAvatar(this,'regAvatarPreview','regUploadIcon')">
+        </div>
+        <div class="auth-error" id="regError"></div>
+        <div class="auth-success" id="regSuccess"></div>
+        <button class="btn-primary" onclick="doRegister()">🎉 立即註冊</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Home Page ── -->
+<div class="page" id="page-home">
+  <div class="home-container">
+    <div class="home-header">
+      <div class="home-avatar" id="homeAvatar">😊</div>
+      <div>
+        <div class="home-name" id="homeName">使用者</div>
+        <div class="home-id" id="homeId">@id</div>
+      </div>
+    </div>
+    <button class="btn-new-post" onclick="showPage('newpost')">
+      <span class="plus-icon">✏️</span> 新增貼文 ／ 許個願望吧！
+    </button>
+    <div class="section-title">📋 我的貼文紀錄</div>
+    <div class="post-list" id="myPostList">
+      <div class="no-posts">
+        <div class="no-posts-icon">🌙</div>
+        <div>還沒有貼文喔，快去許個願吧！</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── New Post Page ── -->
+<div class="page" id="page-newpost">
+  <div class="newpost-container">
+    <button class="page-back-btn" onclick="showPage('home')">← 返回首頁</button>
+    <div class="newpost-card">
+      <div class="newpost-header">
+        <div class="newpost-avatar" id="newpostAvatar">😊</div>
+        <div>
+          <div class="newpost-title-text" id="newpostName">使用者</div>
+          <div class="newpost-id-text" id="newpostId">@id</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">🏷️ 發布主題</label>
+        <input type="text" class="form-input" id="postTopic" placeholder="例如：幫我代購日本 7-11 限定泡麵！">
+      </div>
+      <div class="form-group">
+        <label class="form-label">💬 發布內容</label>
+        <textarea class="form-input" id="postContent" rows="4" placeholder="說說你的需求、願望或分享吧 ✨"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">📸 上傳照片（選填）</label>
+        <div class="photo-upload-area" onclick="document.getElementById('postPhotoInput').click()">
+          <div>📷 點擊上傳圖片</div>
+          <div style="font-size:0.82rem;color:var(--text-light);margin-top:4px">支援 JPG、PNG、GIF</div>
+          <img id="postPhotoPreview" class="photo-preview" src="" alt="">
+        </div>
+        <input type="file" id="postPhotoInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+      </div>
+      <button class="btn-post-submit" onclick="submitPost()">🚀 發布貼文！</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Share Page ── -->
+<div class="page" id="page-share">
+  <div class="share-container">
+    <div class="share-hero">
+      <div class="share-hero-title">🌈 大家的許願分享區</div>
+      <div class="share-hero-sub">看看大家都在許什麼願望，也許你可以幫上忙！💕</div>
+    </div>
+    <div class="post-list" id="sharePostList">
+      <div class="no-posts">
+        <div class="no-posts-icon">🌟</div>
+        <div>還沒有人發文喔，快去成為第一個！</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Login Prompt Modal ── -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-card">
+    <div class="modal-icon">🔐</div>
+    <div class="modal-title">是否有平台帳號？</div>
+    <div class="modal-text">登入後才能留言互動喔！<br>還沒有帳號也可以免費註冊 🌸</div>
+    <div class="modal-actions">
+      <button class="btn-modal-primary" onclick="modalGoAuth('login')">🔑 去登入</button>
+      <button class="btn-modal-primary" onclick="modalGoAuth('register')" style="background:linear-gradient(135deg,var(--purple),var(--sky))">🌟 去註冊</button>
+    </div>
+    <button class="btn-modal-secondary" style="width:100%;margin-top:10px" onclick="closeModal()">✕ 繼續瀏覽</button>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div class="toast" id="toast">✅ 操作成功！</div>
+
+<script>
+// ──────────── DATA STORE ────────────
+let users = JSON.parse(localStorage.getItem('wp_users') || '[]');
+let posts = JSON.parse(localStorage.getItem('wp_posts') || '[]');
+let currentUser = JSON.parse(localStorage.getItem('wp_current') || 'null');
+
+function saveUsers() { localStorage.setItem('wp_users', JSON.stringify(users)); }
+function savePosts() { localStorage.setItem('wp_posts', JSON.stringify(posts)); }
+function saveCurrentUser() { localStorage.setItem('wp_current', JSON.stringify(currentUser)); }
+
+// ──────────── NAVIGATION ────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  if (name === 'share') document.querySelectorAll('.nav-tab')[0].classList.add('active');
+  if (name === 'home') document.querySelectorAll('.nav-tab')[1].classList.add('active');
+  if (name === 'home') renderHome();
+  if (name === 'share') renderShare();
+  if (name === 'newpost') prepareNewPost();
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  showPage(currentUser ? 'home' : 'share');
+}
+
+function requireAuth(page) {
+  if (!currentUser) { showLoginModal(); return; }
+  showPage(page);
+}
+
+// ──────────── AUTH ────────────
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='register'));
+  });
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+function previewAvatar(input, previewId, iconId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById(previewId);
+    img.src = e.target.result;
+    img.classList.add('show');
+    if(iconId) document.getElementById(iconId).style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function doRegister() {
+  const id = document.getElementById('regId').value.trim();
+  const name = document.getElementById('regName').value.trim();
+  const pw = document.getElementById('regPw').value;
+  const avatarFile = document.getElementById('regAvatar').files[0];
+  const errEl = document.getElementById('regError');
+  const sucEl = document.getElementById('regSuccess');
+  errEl.classList.remove('show'); sucEl.classList.remove('show');
+
+  if (!id || !name || !pw) { errEl.textContent = '❗ 請填寫所有必填欄位'; errEl.classList.add('show'); return; }
+  if (id.length < 2 || id.length > 20) { errEl.textContent = '❗ ID 長度請在 2~20 字元之間'; errEl.classList.add('show'); return; }
+  if (id.includes(' ')) { errEl.textContent = '❗ ID 不能包含空格'; errEl.classList.add('show'); return; }
+  if (pw.length < 4) { errEl.textContent = '❗ 密碼至少需要4位數'; errEl.classList.add('show'); return; }
+  if (users.find(u => u.id === id)) { errEl.textContent = '❗ 此 ID 已被使用，請換一個'; errEl.classList.add('show'); return; }
+
+  function createUser(avatarData) {
+    const newUser = { id, name, pw, avatar: avatarData || '' };
+    users.push(newUser);
+    saveUsers();
+    sucEl.textContent = '🎉 註冊成功！請登入 ~';
+    sucEl.classList.add('show');
+    showToast('🌸 註冊成功！歡迎加入！');
+    setTimeout(() => switchAuthTab('login'), 1200);
+    document.getElementById('loginId').value = id;
+  }
+
+  if (avatarFile) {
+    const reader = new FileReader();
+    reader.onload = e => createUser(e.target.result);
+    reader.readAsDataURL(avatarFile);
+  } else {
+    createUser('');
+  }
+}
+
+let pending2FAUser = null;
+let captchaCorrectIndexes = [];
+let captchaSelectedIndexes = new Set();
+
+// 動物圖片資料庫（用 emoji 畫在 canvas 上，不需要外部圖片）
+const ANIMALS = {
+  cat:  { label: '貓咪', emojis: ['🐱','😸','😺','😻','🐈','😾','😿','🙀'] },
+  dog:  { label: '狗狗', emojis: ['🐶','🐕','🦮','🐩','🐕‍🦺','😂'] },
+  bird: { label: '鳥類', emojis: ['🐦','🦜','🦅','🦆','🐧','🦩','🦚','🦉'] },
+  fish: { label: '魚魚', emojis: ['🐟','🐠','🐡','🦈','🐬','🐙'] },
+  bear: { label: '熊熊', emojis: ['🐻','🐼','🧸','🐨'] },
+};
+
+function buildCaptcha() {
+  // 每次隨機挑一個主題
+  const keys = Object.keys(ANIMALS);
+  const targetKey = keys[Math.floor(Math.random() * keys.length)];
+  const target = ANIMALS[targetKey];
+
+  // 建立9個格子：3~5個正確，其餘從其他動物來
+  const otherKeys = keys.filter(k => k !== targetKey);
+  const correctCount = 3 + Math.floor(Math.random() * 3); // 3~5個
+
+  // 正確的 emoji 清單
+  const correctEmojis = [...target.emojis].sort(() => Math.random()-0.5).slice(0, correctCount);
+  // 錯誤的 emoji（從其他動物隨機取）
+  const wrongEmojis = [];
+  while (wrongEmojis.length < 9 - correctCount) {
+    const rk = otherKeys[Math.floor(Math.random() * otherKeys.length)];
+    const pool = ANIMALS[rk].emojis;
+    const e = pool[Math.floor(Math.random() * pool.length)];
+    if (!wrongEmojis.includes(e)) wrongEmojis.push(e);
+  }
+
+  // 打亂順序
+  const allItems = [
+    ...correctEmojis.map(e => ({ emoji: e, correct: true })),
+    ...wrongEmojis.map(e => ({ emoji: e, correct: false }))
+  ].sort(() => Math.random() - 0.5);
+
+  // 記錄正確 index
+  captchaCorrectIndexes = allItems.map((item, i) => item.correct ? i : -1).filter(i => i !== -1);
+  captchaSelectedIndexes = new Set();
+
+  // 更新題目文字
+  document.getElementById('captchaQuestion').textContent = `請選取所有包含${target.label}的圖片`;
+
+  // 建立格子
+  const grid = document.getElementById('captchaGrid');
+  grid.innerHTML = '';
+  allItems.forEach((item, i) => {
+    const cell = document.createElement('div');
+    cell.style.cssText = `
+      aspect-ratio:1; border-radius:12px; border:3px solid #F0D6E8;
+      display:flex; align-items:center; justify-content:center;
+      font-size:2.8rem; cursor:pointer; background:#fff8fc;
+      transition:all 0.18s; user-select:none; position:relative;
+      overflow:hidden;
+    `;
+    cell.textContent = item.emoji;
+    cell.dataset.index = i;
+    cell.onclick = () => toggleCaptchaCell(cell, i);
+    grid.appendChild(cell);
+  });
+
+  document.getElementById('twoFAError').classList.remove('show');
+}
+
+function toggleCaptchaCell(cell, index) {
+  if (captchaSelectedIndexes.has(index)) {
+    captchaSelectedIndexes.delete(index);
+    cell.style.border = '3px solid #F0D6E8';
+    cell.style.background = '#fff8fc';
+    cell.style.transform = 'scale(1)';
+    // remove checkmark
+    const ck = cell.querySelector('.captcha-check');
+    if (ck) ck.remove();
+  } else {
+    captchaSelectedIndexes.add(index);
+    cell.style.border = '3px solid #FF6B9D';
+    cell.style.background = '#FFF0F6';
+    cell.style.transform = 'scale(0.95)';
+    // add checkmark overlay
+    const ck = document.createElement('div');
+    ck.className = 'captcha-check';
+    ck.style.cssText = `
+      position:absolute; top:4px; right:4px;
+      background:#FF6B9D; color:white; border-radius:50%;
+      width:22px; height:22px; display:flex; align-items:center;
+      justify-content:center; font-size:0.75rem; font-weight:900;
+    `;
+    ck.textContent = '✓';
+    cell.appendChild(ck);
+  }
+}
+
+function doLogin() {
+  const id = document.getElementById('loginId').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const errEl = document.getElementById('loginError');
+  errEl.classList.remove('show');
+  if (!id || !pw) { errEl.textContent = '❗ 請填寫帳號和密碼'; errEl.classList.add('show'); return; }
+  users = JSON.parse(localStorage.getItem('wp_users') || '[]');
+  const userById = users.find(u => u.id === id);
+  if (!userById) { errEl.textContent = '❗ 找不到此帳號，請確認 ID 是否正確，或先去註冊'; errEl.classList.add('show'); return; }
+  if (userById.pw !== pw) { errEl.textContent = '❗ 密碼錯誤，請再確認一次'; errEl.classList.add('show'); return; }
+  // 帳密正確 → 進入圖片驗證
+  pending2FAUser = userById;
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('twoFAForm').style.display = 'block';
+  buildCaptcha();
+}
+
+function verify2FA() {
+  const errEl = document.getElementById('twoFAError');
+  errEl.classList.remove('show');
+  if (captchaSelectedIndexes.size === 0) {
+    errEl.textContent = '❗ 請選取符合的圖片！'; errEl.classList.add('show'); return;
+  }
+  const selected = [...captchaSelectedIndexes].sort().join(',');
+  const correct = [...captchaCorrectIndexes].sort().join(',');
+  if (selected !== correct) {
+    errEl.textContent = '❗ 選取錯誤，請再試一次！'; errEl.classList.add('show');
+    // 震動效果
+    const grid = document.getElementById('captchaGrid');
+    grid.style.animation = 'shake 0.4s';
+    setTimeout(() => { grid.style.animation = ''; buildCaptcha(); }, 500);
+    return;
+  }
+  // 驗證成功！
+  currentUser = pending2FAUser;
+  pending2FAUser = null;
+  saveCurrentUser();
+  updateNavbar();
+  document.getElementById('twoFAForm').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+  showPage('home');
+  showToast('🎉 驗證成功！歡迎回來，' + currentUser.name + '！');
+}
+
+function cancel2FA() {
+  pending2FAUser = null;
+  captchaSelectedIndexes = new Set();
+  document.getElementById('twoFAForm').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+}
+
+function doLogout() {
+  currentUser = null;
+  saveCurrentUser();
+  updateNavbar();
+  showPage('share');
+  showToast('👋 已登出，歡迎再來！');
+}
+
+function updateNavbar() {
+  const navUser = document.getElementById('navUser');
+  if (currentUser) {
+    navUser.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px">
+        ${currentUser.avatar
+          ? `<img class="nav-avatar" src="${currentUser.avatar}" onclick="showPage('home')">`
+          : `<div class="nav-avatar" onclick="showPage('home')">😊</div>`}
+        <span class="nav-username">${currentUser.name}</span>
+        <button class="btn-logout" onclick="doLogout()">登出</button>
+      </div>`;
+  } else {
+    navUser.innerHTML = `<button class="nav-tab" onclick="showPage('auth')" id="btnLogin">🔐 登入</button>`;
+  }
+}
+
+// ──────────── HOME ────────────
+function renderHome() {
+  if (!currentUser) return;
+  const avatar = document.getElementById('homeAvatar');
+  if (currentUser.avatar) {
+    avatar.innerHTML = `<img src="${currentUser.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  } else {
+    avatar.textContent = '😊';
+  }
+  document.getElementById('homeName').textContent = currentUser.name;
+  document.getElementById('homeId').textContent = '@' + currentUser.id;
+
+  const myPosts = posts.filter(p => p.authorId === currentUser.id).reverse();
+  const list = document.getElementById('myPostList');
+  if (myPosts.length === 0) {
+    list.innerHTML = `<div class="no-posts"><div class="no-posts-icon">🌙</div><div>還沒有貼文喔，快去許個願吧！</div></div>`;
+    return;
+  }
+  list.innerHTML = myPosts.map(p => buildPostCard(p, 'home')).join('');
+  attachCardEvents(list);
+}
+
+// ──────────── NEW POST ────────────
+let newPostPhotoData = '';
+
+function prepareNewPost() {
+  if (!currentUser) { showPage('auth'); return; }
+  const avatar = document.getElementById('newpostAvatar');
+  if (currentUser.avatar) {
+    avatar.innerHTML = `<img src="${currentUser.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  } else {
+    avatar.textContent = '😊';
+  }
+  document.getElementById('newpostName').textContent = currentUser.name;
+  document.getElementById('newpostId').textContent = '@' + currentUser.id;
+  document.getElementById('postTopic').value = '';
+  document.getElementById('postContent').value = '';
+  const preview = document.getElementById('postPhotoPreview');
+  preview.classList.remove('show'); preview.src = '';
+  newPostPhotoData = '';
+  document.getElementById('postPhotoInput').value = '';
+}
+
+function previewPhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById('postPhotoPreview');
+    prev.src = e.target.result; prev.classList.add('show');
+    newPostPhotoData = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function submitPost() {
+  const topic = document.getElementById('postTopic').value.trim();
+  const content = document.getElementById('postContent').value.trim();
+  if (!topic) { showToast('❗ 請填寫發布主題！'); return; }
+  if (!content) { showToast('❗ 請填寫發布內容！'); return; }
+  const post = {
+    id: Date.now() + '' + Math.random().toString(36).slice(2,7),
+    authorId: currentUser.id,
+    authorName: currentUser.name,
+    authorAvatar: currentUser.avatar || '',
+    topic, content,
+    photo: newPostPhotoData,
+    time: new Date().toLocaleString('zh-TW'),
+    likes: [],
+    comments: []
+  };
+  posts.push(post);
+  savePosts();
+  showToast('🎉 貼文發布成功！');
+  showPage('home');
+}
+
+// ──────────── SHARE ────────────
+function renderShare() {
+  const allPosts = [...posts].reverse();
+  const list = document.getElementById('sharePostList');
+  if (allPosts.length === 0) {
+    list.innerHTML = `<div class="no-posts"><div class="no-posts-icon">🌟</div><div>還沒有人發文喔，快去成為第一個！</div></div>`;
+    return;
+  }
+  list.innerHTML = allPosts.map(p => buildPostCard(p, 'share')).join('');
+  attachCardEvents(list);
+}
+
+// ──────────── POST CARD BUILDER ────────────
+function buildPostCard(post, context) {
+  const liked = currentUser && post.likes.includes(currentUser.id);
+  const likeCount = post.likes.length;
+  const commentCount = post.comments.length;
+  const avatarHtml = post.authorAvatar
+    ? `<img class="post-avatar" src="${post.authorAvatar}" alt="">`
+    : `<div class="post-avatar">😊</div>`;
+
+  const commentsHtml = post.comments.map(c => {
+    const commentAvatar = c.avatar
+      ? `<img class="comment-avatar" src="${c.avatar}" alt="">`
+      : `<div class="comment-avatar">😊</div>`;
+    return `<div class="comment-item">
+      ${commentAvatar}
+      <div><div class="comment-author">${esc(c.authorName)} <span style="color:var(--text-light);font-weight:400">@${esc(c.authorId)}</span></div>
+      <div class="comment-text">${esc(c.text)}</div></div>
+    </div>`;
+  }).join('');
+
+  const commentInputHtml = currentUser
+    ? `<div class="comment-input-row">
+        <input class="comment-input" placeholder="說點什麼吧... 💬" data-post-id="${post.id}" onkeydown="if(event.key==='Enter')sendComment('${post.id}',this.value,this)">
+        <button class="btn-comment-send" onclick="sendComment('${post.id}', this.previousElementSibling.value, this.previousElementSibling)">送出</button>
+       </div>`
+    : `<div class="no-login-hint">💬 <a href="#" onclick="showLoginModal()" style="color:var(--pink);font-weight:700">登入</a> 後才能留言喔！</div>`;
+
+  return `<div class="post-card" data-post-id="${post.id}">
+    <div class="post-header">
+      ${avatarHtml}
+      <div>
+        <div class="post-author-name">${esc(post.authorName)}</div>
+        <div class="post-author-id">@${esc(post.authorId)}</div>
+      </div>
+      <div class="post-time">${post.time}</div>
+    </div>
+    <div class="post-topic">${esc(post.topic)}</div>
+    <div class="post-content">${esc(post.content)}</div>
+    ${post.photo ? `<img class="post-img" src="${post.photo}" alt="貼文圖片">` : ''}
+    <div class="post-actions">
+      <button class="action-btn ${liked?'liked':''}" onclick="toggleLike('${post.id}')">
+        <span class="action-icon">${liked?'❤️':'🤍'}</span> ${likeCount > 0 ? likeCount : ''} 讚
+      </button>
+      <button class="action-btn" onclick="toggleComments('${post.id}')">
+        <span class="action-icon">💬</span> ${commentCount > 0 ? commentCount : ''} 留言
+      </button>
+    </div>
+    <div class="comments-section" id="comments-${post.id}">
+      <div class="comment-list" id="comment-list-${post.id}">${commentsHtml}</div>
+      ${commentInputHtml}
+    </div>
+  </div>`;
+}
+
+function attachCardEvents(container) {}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ──────────── INTERACTIONS ────────────
+function toggleLike(postId) {
+  if (!currentUser) { showLoginModal(); return; }
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+  const idx = post.likes.indexOf(currentUser.id);
+  if (idx === -1) { post.likes.push(currentUser.id); }
+  else { post.likes.splice(idx, 1); }
+  savePosts();
+  reRenderCardInPlace(postId);
+}
+
+function toggleComments(postId) {
+  if (!currentUser) {
+    const sec = document.getElementById('comments-' + postId);
+    if (sec) {
+      const alreadyOpen = sec.classList.contains('show');
+      if (!alreadyOpen) { showLoginModal(); return; }
+    }
+  }
+  const sec = document.getElementById('comments-' + postId);
+  if (sec) sec.classList.toggle('show');
+}
+
+function sendComment(postId, text, inputEl) {
+  if (!currentUser) { showLoginModal(); return; }
+  text = text.trim();
+  if (!text) return;
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+  post.comments.push({
+    authorId: currentUser.id,
+    authorName: currentUser.name,
+    avatar: currentUser.avatar || '',
+    text,
+    time: new Date().toLocaleString('zh-TW')
+  });
+  savePosts();
+  inputEl.value = '';
+  reRenderCardInPlace(postId);
+  // Keep comments open
+  setTimeout(() => {
+    const sec = document.getElementById('comments-' + postId);
+    if (sec) sec.classList.add('show');
+  }, 10);
+}
+
+function reRenderCardInPlace(postId) {
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  // Update in both home and share lists
+  ['myPostList','sharePostList'].forEach(listId => {
+    const list = document.getElementById(listId);
+    if (!list) return;
+    const card = list.querySelector(`[data-post-id="${postId}"]`);
+    if (!card) return;
+    const wasCommentsOpen = card.querySelector('.comments-section.show') !== null;
+    const newCardHtml = buildPostCard(post, 'ctx');
+    const div = document.createElement('div');
+    div.innerHTML = newCardHtml;
+    const newCard = div.firstChild;
+    list.replaceChild(newCard, card);
+    if (wasCommentsOpen) {
+      const sec = document.getElementById('comments-' + postId);
+      if (sec) sec.classList.add('show');
+    }
+  });
+}
+
+// ──────────── MODAL ────────────
+function showLoginModal() {
+  document.getElementById('loginModal').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('loginModal').classList.remove('show');
+}
+function modalGoAuth(tab) {
+  closeModal();
+  showPage('auth');
+  switchAuthTab(tab);
+}
+
+// ──────────── TOAST ────────────
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ──────────── INIT ────────────
+updateNavbar();
+// Show share as landing
+showPage('share');
+// If was logged in, don't ask again
+if (currentUser) {
+  // re-sync avatar from users store
+  const fresh = users.find(u => u.id === currentUser.id);
+  if (fresh) { currentUser = fresh; saveCurrentUser(); }
+  updateNavbar();
+}
+</script>
+</body>
+</html>
